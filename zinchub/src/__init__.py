@@ -24,3 +24,7 @@ If you use this module please cite us with:
 Summary
 -------
 """
+
+from .data_classes import DataHub
+
+__all__ = ['DataHub']

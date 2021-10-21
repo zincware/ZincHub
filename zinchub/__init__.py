@@ -24,3 +24,7 @@ If you use this module please cite us with:
 Summary
 -------
 """
+
+from .src import DataHub
+
+__all__ = ['DataHub']
