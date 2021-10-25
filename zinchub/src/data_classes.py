@@ -24,13 +24,15 @@ If you use this module please cite us with:
 Summary
 -------
 """
+import json
+import logging
 from dataclasses import dataclass
 import yaml
 from urllib.request import urlopen
 from zipfile import ZipFile
 from io import BytesIO
-from pathlib import Path
 
+log = logging.getLogger(__name__)
 
 def github_to_raw(url):
     """Take a GitHub url and convert it to the url to access raw data"""
@@ -43,9 +45,7 @@ def github_to_raw(url):
 
 @dataclass
 class DataHub:
-    """
-    Data class to define the DataHub folder.
-    """
+    """Data class to define the DataHub folder"""
     url: str
     info: dict = None
     file_compressed: str = None
@@ -70,6 +70,33 @@ class DataHub:
             with ZipFile(BytesIO(url.read())) as file:
                 file.extract(self.file_raw, path=path)
 
+    def get_analysis(self, analysis, content_path="analysis/"):
+        """Get Analysis data
+
+        Download a specific analysis file in json format and return a dictionary
+
+        Parameters
+        ----------
+        analysis: str
+            Name of the analysis, e.g. RadialDistributionFunction
+        content_path: str, optional
+            define the relative directory to the url where to find the analysis data
+
+        Returns
+        -------
+
+        dict:
+            The json file converted to a dict
+
+        """
+        if not analysis.endswith('.json'):
+            analysis += ".json"
+
+        log.debug(f"Downloading data for {analysis}.")
+        with urlopen(github_to_raw(self.url + "/" + content_path + analysis)) as url:
+            return json.loads(url.read())
+
 
 if __name__ == '__main__':
     LiCl = DataHub(url="https://github.com/zincware/DataHub/tree/main/NaCl_gk_i_q")
+    print(LiCl.get_analysis('RadialDistributionFunction'))
