@@ -69,7 +69,9 @@ class DataHub:
         with urlopen(github_to_raw(self.url + "/" + self.file_compressed)) as url:
             with ZipFile(BytesIO(url.read())) as file:
                 file.extract(self.file_raw, path=path)
-
+        
+        return self.file_raw
+        
     def get_analysis(self, analysis, content_path="analysis/"):
         """Get Analysis data
 
