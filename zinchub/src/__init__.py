@@ -27,4 +27,4 @@ Summary
 
 from .data_classes import DataHub
 
-__all__ = ['DataHub']
+__all__ = ["DataHub"]

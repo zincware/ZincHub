@@ -34,18 +34,16 @@ from io import BytesIO
 
 log = logging.getLogger(__name__)
 
+
 def github_to_raw(url):
     """Take a GitHub url and convert it to the url to access raw data"""
-    return url.replace(
-        "github.com", "raw.githubusercontent.com"
-    ).replace(
-        "/tree", ""
-    )
+    return url.replace("github.com", "raw.githubusercontent.com").replace("/tree", "")
 
 
 @dataclass
 class DataHub:
     """Data class to define the DataHub folder"""
+
     url: str
     info: dict = None
     file_compressed: str = None
@@ -61,17 +59,21 @@ class DataHub:
             yaml_content = url.read()
 
         self.info = yaml.safe_load(yaml_content)
-        self.file_compressed = self.info['file']['compressed']
-        self.file_raw = self.info['file']['raw']
+        self.file_compressed = self.info["file"]["compressed"]
+        self.file_raw = self.info["file"]["raw"]
 
-    def get_file(self, path):
+    def get_file(self, path="./"):
         """Download the file from the URL into path"""
         with urlopen(github_to_raw(self.url + "/" + self.file_compressed)) as url:
             with ZipFile(BytesIO(url.read())) as file:
-                file.extract(self.file_raw, path=path)
-        
+                if isinstance(self.file_raw, list):
+                    for f in self.file_raw:
+                        file.extract(f, path=path)
+                else:
+                    file.extract(self.file_raw, path=path)
+
         return self.file_raw
-        
+
     def get_analysis(self, analysis, content_path="analysis/"):
         """Get Analysis data
 
@@ -91,7 +93,7 @@ class DataHub:
             The json file converted to a dict
 
         """
-        if not analysis.endswith('.json'):
+        if not analysis.endswith(".json"):
             analysis += ".json"
 
         log.debug(f"Downloading data for {analysis}.")
@@ -99,6 +101,6 @@ class DataHub:
             return json.loads(url.read())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     LiCl = DataHub(url="https://github.com/zincware/DataHub/tree/main/NaCl_gk_i_q")
-    print(LiCl.get_analysis('RadialDistributionFunction'))
+    print(LiCl.get_analysis("RadialDistributionFunction"))
