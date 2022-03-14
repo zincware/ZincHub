@@ -42,9 +42,19 @@ def github_to_raw(url):
 
 @dataclass
 class DataHub:
-    """Data class to define the DataHub folder"""
+    """Data class to define the DataHub folder
+
+    Attributes
+    ----------
+        url: str
+            The url to the data hub repository.
+            e.g. https://github.com/zincware/DataHub/tree/main/NaCl_gk_i_q
+        tag: str
+            The tag of the datahub data to be used. Can not be main
+    """
 
     url: str
+    tag: str
     info: dict = None
     file_compressed: str = None
     file_raw: str = None
@@ -55,6 +65,10 @@ class DataHub:
 
     def __post_init__(self):
         """Get the information from the info file"""
+        if self.tag == "main":
+            raise ValueError("Please create a new tag on DataHub instead of using main.")
+
+        self.url = self.url.replace("main", self.tag)
         with urlopen(github_to_raw(self.url + "/info.yaml")) as url:
             yaml_content = url.read()
 
@@ -66,7 +80,7 @@ class DataHub:
         """Download the file from the URL into path"""
         with urlopen(github_to_raw(self.url + "/" + self.file_compressed)) as url:
             with ZipFile(BytesIO(url.read())) as file:
-                if isinstance(self.file_raw, list):
+                if isinstance(self.file_raw, (list, tuple)):
                     for f in self.file_raw:
                         file.extract(f, path=path)
                 else:
@@ -102,5 +116,5 @@ class DataHub:
 
 
 if __name__ == "__main__":
-    LiCl = DataHub(url="https://github.com/zincware/DataHub/tree/main/NaCl_gk_i_q")
-    print(LiCl.get_analysis("RadialDistributionFunction"))
+    LiCl = DataHub(url="https://github.com/zincware/DataHub/tree/main/NaCl_gk_i_q", tag="v0.1.0")
+    print(LiCl.get_analysis("KirkwoodBuffIntegral"))
