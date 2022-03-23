@@ -35,7 +35,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="ZincHub",
-    version="0.0.1",
+    version="0.1.0",
     author="zincwarecode",
     author_email="zincwarecode@gmail.com",
     description="API for the zincwarecode DataHub",
